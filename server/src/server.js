@@ -29,7 +29,7 @@ const Url = mongoose.model('Url', UrlSchema);
 
 app.post('/api/shorten', async (req, res) => {
   const { originalUrl } = req.body;
-  const shortUrl = nanoid(7); 
+  const shortUrl = nanoid(3); 
 
   const url = new Url({
     originalUrl,
