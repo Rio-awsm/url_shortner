@@ -8,8 +8,8 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const response = await axios.post('http://localhost:5000/api/shorten', { originalUrl })
-      setShortUrl(`http://localhost:5000/${response.data.shortUrl}`)
+      const response = await axios.post('https://url-shortner-2kza.onrender.com/api/shorten', { originalUrl })
+      setShortUrl(`https://url-shortner-2kza.onrender.com/${response.data.shortUrl}`)
     } catch (error) {
       console.error('Error shortening URL:', error)
     }
