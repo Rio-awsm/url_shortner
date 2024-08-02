@@ -37,7 +37,7 @@ app.post('/api/shorten', async (req, res) => {
   await url.save();
 
  
-  const fullShortUrl = `${process.env.BASE_URL || 'http://localhost:5000'}/${shortUrl}`;
+  const fullShortUrl = `${process.env.BASE_URL || 'https://url-shortner-2kza.onrender.com'}/${shortUrl}`;
   const qrCode = await QRCode.toDataURL(fullShortUrl);
 
   res.json({ shortUrl, qrCode });
