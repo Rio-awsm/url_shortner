@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import { nanoid } from 'nanoid';
 import dotenv from 'dotenv';
+import QRCode from 'qrcode';
 
 dotenv.config();
 
@@ -12,12 +13,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
-
 
 const UrlSchema = new mongoose.Schema({
   originalUrl: String,
@@ -26,10 +25,9 @@ const UrlSchema = new mongoose.Schema({
 
 const Url = mongoose.model('Url', UrlSchema);
 
-
 app.post('/api/shorten', async (req, res) => {
   const { originalUrl } = req.body;
-  const shortUrl = nanoid(5); 
+  const shortUrl = nanoid(3); 
 
   const url = new Url({
     originalUrl,
@@ -38,7 +36,11 @@ app.post('/api/shorten', async (req, res) => {
 
   await url.save();
 
-  res.json({ shortUrl });
+ 
+  const fullShortUrl = `${process.env.BASE_URL || 'http://localhost:5000'}/${shortUrl}`;
+  const qrCode = await QRCode.toDataURL(fullShortUrl);
+
+  res.json({ shortUrl, qrCode });
 });
 
 app.get('/:shortUrl', async (req, res) => {
