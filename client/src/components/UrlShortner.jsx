@@ -1,21 +1,26 @@
 import axios from 'axios'
 import React, { useState } from 'react'
 
-const UrlShortner = () => {
+const UrlShortener = () => {
   const [originalUrl, setOriginalUrl] = useState('')
   const [shortUrl, setShortUrl] = useState('')
   const [qrCode, setQrCode] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     try {
       const response = await axios.post('https://url-shortner-2kza.onrender.com/api/shorten', { originalUrl })
       setShortUrl(`https://url-shortner-2kza.onrender.com/${response.data.shortUrl}`)
       setQrCode(response.data.qrCode)
     } catch (error) {
       console.error('Error shortening URL:', error)
+    } finally {
+      setLoading(false)
     }
   }
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
@@ -32,8 +37,9 @@ const UrlShortner = () => {
           <button
             type="submit"
             className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            disabled={loading}
           >
-            Shorten URL and Generate QR Code
+            {loading ? 'Shortening...' : 'Shorten URL and Generate QR Code'}
           </button>
         </form>
         {shortUrl && (
@@ -60,4 +66,4 @@ const UrlShortner = () => {
   )
 }
 
-export default UrlShortner
+export default UrlShortener
