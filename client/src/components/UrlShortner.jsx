@@ -1,11 +1,13 @@
 import axios from 'axios'
 import React, { useState } from 'react'
+import MetadataViewer from './MetadataViewer'
 
 const UrlShortener = () => {
   const [originalUrl, setOriginalUrl] = useState('')
   const [shortUrl, setShortUrl] = useState('')
   const [qrCode, setQrCode] = useState('')
   const [loading, setLoading] = useState(false)
+  const [metadata, setMetadata] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -14,6 +16,7 @@ const UrlShortener = () => {
       const response = await axios.post('https://url-shortner-2kza.onrender.com/api/shorten', { originalUrl })
       setShortUrl(`https://url-shortner-2kza.onrender.com/${response.data.shortUrl}`)
       setQrCode(response.data.qrCode)
+      setMetadata(response.data.metadata)
     } catch (error) {
       console.error('Error shortening URL:', error)
     } finally {
@@ -61,6 +64,7 @@ const UrlShortener = () => {
             <img src={qrCode} alt="QR Code" className="mt-2" />
           </div>
         )}
+        <MetadataViewer metadata={metadata} />
       </div>
     </div>
   )
