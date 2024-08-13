@@ -9,6 +9,7 @@ import metascraperTitle from 'metascraper-title';
 import metascraperDescription from 'metascraper-description';
 import metascraperImage from 'metascraper-image';
 import got from 'got';
+import seoRoutes from './routes/seo.js';
 
 dotenv.config();
 
@@ -94,6 +95,8 @@ app.get('/:shortUrl', async (req, res) => {
     res.status(404).json('Not found');
   }
 });
+
+app.use('/api/seo', seoRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
