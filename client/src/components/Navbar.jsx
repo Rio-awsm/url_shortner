@@ -27,6 +27,12 @@ const Navbar = () => {
           >
             Color Picker
           </Link>
+          <Link
+            to="/ssl"
+            className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+          >
+            Check SSL
+          </Link>
         </div>
       </div>
     </nav>
