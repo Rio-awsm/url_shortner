@@ -10,7 +10,8 @@ import metascraperDescription from 'metascraper-description';
 import metascraperImage from 'metascraper-image';
 import got from 'got';
 import seoRoutes from './routes/seo.js';
-// import apiRoutes from './routes/api.js';
+import https from 'https';
+
 
 dotenv.config();
 
@@ -38,6 +39,19 @@ const UrlSchema = new mongoose.Schema({
 });
 
 const Url = mongoose.model('Url', UrlSchema);
+
+
+//certificate schema
+const certificateSchema = new mongoose.Schema({
+  domain: String,
+  validFrom: Date,
+  validTo: Date,
+  issuer: String,
+  status: String,
+});
+
+const Certificate = mongoose.model('Certificate', certificateSchema);
+
 
 // Initialize metascraper
 const scraper = metascraper([
@@ -75,6 +89,60 @@ app.post('/api/shorten', async (req, res) => {
   }
 });
 
+function checkSSL(domain) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      host: domain,
+      port: 443,
+      method: 'GET',
+      rejectUnauthorized: false,
+    };
+
+    const req = https.request(options, (res) => {
+      const cert = res.connection.getPeerCertificate();
+      
+      if (res.socket.authorized) {
+        resolve({
+          domain,
+          validFrom: new Date(cert.valid_from),
+          validTo: new Date(cert.valid_to),
+          issuer: cert.issuer.O,
+          status: 'Valid',
+        });
+      } else if (cert.subject) {
+        resolve({
+          domain,
+          validFrom: new Date(cert.valid_from),
+          validTo: new Date(cert.valid_to),
+          issuer: cert.issuer.O,
+          status: 'Invalid',
+        });
+      } else {
+        reject(new Error('No SSL certificate'));
+      }
+    });
+
+    req.on('error', (e) => {
+      reject(e);
+    });
+
+    req.end();
+  });
+}
+
+app.post('/api/check-ssl', async (req, res) => {
+  const { domain } = req.body;
+  
+  try {
+    const certInfo = await checkSSL(domain);
+    const certificate = new Certificate(certInfo);
+    await certificate.save();
+    res.json(certInfo);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/metadata/:shortUrl', async (req, res) => {
   const { shortUrl } = req.params;
   const url = await Url.findOne({ shortUrl });
@@ -98,7 +166,7 @@ app.get('/:shortUrl', async (req, res) => {
 });
 
 app.use('/api/seo', seoRoutes);
-// app.use('/api', apiRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
