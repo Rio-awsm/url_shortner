@@ -10,7 +10,7 @@ import metascraperDescription from 'metascraper-description';
 import metascraperImage from 'metascraper-image';
 import got from 'got';
 import seoRoutes from './routes/seo.js';
-import https from 'https';
+
 
 
 dotenv.config();
